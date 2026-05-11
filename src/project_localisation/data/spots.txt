@@ -1,0 +1,18 @@
+test
+geometry_msgs.msg.PoseWithCovariance(pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=0.19587117734329978, y=-0.30639850097930205, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=0.5092368442435139, w=0.8606264209660933)), covariance=array([ 0.21808028, -0.00568667,  0.        ,  0.        ,  0.        ,
+        0.        , -0.00568667,  0.2300196 ,  0.        ,  0.        ,
+        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+        0.07420611]))
+test
+geometry_msgs.msg.PoseWithCovariance(pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=0.19587117734329978, y=-0.30639850097930205, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=0.5092368442435139, w=0.8606264209660933)), covariance=array([ 0.21808028, -0.00568667,  0.        ,  0.        ,  0.        ,
+        0.        , -0.00568667,  0.2300196 ,  0.        ,  0.        ,
+        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+        0.07420611]))

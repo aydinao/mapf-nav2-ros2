@@ -1,0 +1,7 @@
+# request
+string label
+---
+# response
+bool success
+string msg
+geometry_msgs/PoseWithCovarianceStamped pose
