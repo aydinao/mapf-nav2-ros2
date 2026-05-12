@@ -26,6 +26,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'point_recorder = project_mapping.point_recorder:main'
+
         ],
     },
 )
