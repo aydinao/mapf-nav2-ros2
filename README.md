@@ -74,6 +74,16 @@ We can use `ros2 service list` to ensure the service is ready to use. To check t
 ros2 service call /record_spot "label: corner1"
 ```
 
+## Navigation
+
+start the path planning launch file with
+
+```
+ros2 launch project_path_planning path_planner.launch.py
+```
+
+Once the starting pose estimate has been set using RViz2, set a goal pose using RViz2. The robot will now navigate to the goal. 
+
 ## Troubleshooting 
 
 ```
