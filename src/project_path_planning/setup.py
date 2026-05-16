@@ -25,6 +25,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'move_to_spot = project_path_planning.move_to_spot:main',
         ],
     },
 )
