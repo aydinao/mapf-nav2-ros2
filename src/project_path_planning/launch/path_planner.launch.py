@@ -33,7 +33,9 @@ def generate_launch_description():
         executable='bt_navigator',
         name='bt_navigator',
         output='screen',
-        parameters=[path_planning_params]
+        parameters=[path_planning_params,
+                    {'default_nav_to_pose_bt_xml': os.path.join(
+                        get_package_share_directory('project_path_planning'), 'config', 'bt.xml')}]
         ),
     Node(
         package='nav2_lifecycle_manager',

@@ -36,7 +36,8 @@ class SpotRecorder(Node):
         response.pose = self.latest_pose
 
         location = request.label
-        file = os.path.join(os.path.expanduser('~'), 'ros2_ws', 'src', 'project_localisation', 'data', 'spots.txt')
+        file = os.path.join(os.path.expanduser('~'), 'ros2_ws', 'src',
+                           'project_localisation', 'data', 'spots.txt')
         os.makedirs(os.path.dirname(file), exist_ok=True)
         with open(file, 'a') as text_file:
             text_file.write(location + "\n" + str(self.latest_pose.pose) + "\n")
