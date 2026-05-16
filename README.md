@@ -49,9 +49,9 @@ The node accepts a `spot_name` parameter and records the pose each time the **2D
 Each spot is recorded by running the node once per label:
 
 ```
-ros2 run project_mapping point_recorder --ros-args -p spot_name:=corner1
-ros2 run project_mapping point_recorder --ros-args -p spot_name:=corner2
-ros2 run project_mapping point_recorder --ros-args -p spot_name:=pedestrian
+ros2 run project_mapping point_recorder --ros-args -p spot_name:=point1
+ros2 run project_mapping point_recorder --ros-args -p spot_name:=point2
+ros2 run project_mapping point_recorder --ros-args -p spot_name:=point3
 ```
 
 The three required spots for this project are `corner1`, `corner2`, and `pedestrian`. Each recorded pose is appended to `~/ros2_ws/src/project_path_planning/config/spot-list.yaml`, preserving previously recorded spots.
@@ -128,3 +128,4 @@ ros2 param set /robot_state_publisher use_sim_time true
 
 - Installation instructions
 - Simulator and world setup discussion
+- Add second TurtleBot3 to the simulation
