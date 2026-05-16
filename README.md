@@ -4,31 +4,31 @@ This project implements autonomous TurtleBot3 navigation using ROS 2 Humble and 
 
 ## Packages
 
-To achieve autonomous navigation three packages have been created. 
+To achieve autonomous navigation, three packages have been created.
 
 ### Project Mapping
 
 #### Using Cartographer ROS
 
-Project mapping package is used to create and save a map of the environment. The launch file `cartographer.launch.py` launches the nodes from the `cartographer_ros` package. 
+The project mapping package is used to create and save a map of the environment. The launch file `cartographer.launch.py` launches the nodes from the `cartographer_ros` package.
 
-Executing the `cartographer_node` with `use_sim_time: True` allows for time synchronisation in simulation. This node is used for SLAM. The configuration parameters are provided via the `cartographer.lua` file.
+Executing the `cartographer_node` with `use_sim_time: True` allows for time synchronisation in simulation. This node is used for SLAM. Configuration parameters are provided via the `cartographer.lua` file.
 
-Additionally, the `cartographer_occupancy_grid_node` is launched and listens to the submaps published by SLAM using them to build a ROS 2 occupancy_grid which it also publishes. We pass the publish period of 1.0 seconds as generating the map is expensive and slow. 
+Additionally, the `cartographer_occupancy_grid_node` is launched and listens to the submaps published by SLAM, consuming the submaps to construct a ROS 2 occupancy_grid, which is also published. A publish period of 1.0 seconds is set, as generating the map is computationally expensive.
 
-To launch this file and start creating the map using SLAM
+To launch and begin creating a map using SLAM:
 
 ```
 ros2 launch project_mapping cartographer.launch.py
 ```
 
-To move the robot via teleoperation which allows for the map to be updated as the robot moves through the environment
+Teleoperation can be used to move the robot, allowing the map to be updated as the robot traverses the environment:
 
 ```
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
-Use rviz2 to observe the occupancy grid as you move the robot. When the map looks sufficient, save it using 
+The occupancy grid can be observed in RViz2 as the robot moves. When the map is sufficient, save using:
 
 ```
 ros2 run nav2_map_server map_saver_cli -f my_map
@@ -36,17 +36,33 @@ ros2 run nav2_map_server map_saver_cli -f my_map
 
 #### Using the map with Navigation2
 
-Now that we have saved the map we can use it for localization going forward. We will use the launch file `map.launch.py` to start the `map_server` from the `nav2_map_server` package. Again, we set `use_sim_time: True` as we are in simulation, and provide the yaml filename for our configuration parameters. 
+The saved map can be used for localisation going forward. The launch file `map.launch.py` starts the `map_server` from the `nav2_map_server` package. `use_sim_time: True` is set for simulation, with the yaml filename provided for configuration parameters.
 
-When using Nav2 packages, we must start a `nav2_lifecycle_manager` for the packages we are using. In this case, the `node_names` are `map_server` and `amcl`. It is set to autostart. 
+When using Nav2 packages, a `nav2_lifecycle_manager` must be started for the relevant packages. In this case, `node_names` are `map_server` and `amcl`, configured to autostart.
+
+#### Recording named spots from RViz2
+
+The `PointRecorder` node subscribes to `/initialpose` and saves named poses to `spot-list.yaml` in the `project_path_planning` config directory. Only the `map_server` is required — no localisation or Nav2 stack is needed.
+
+The node accepts a `spot_name` parameter and records the pose each time the **2D Pose Estimate** tool is used in RViz2. Output is written in ROS 2 parameter file format, allowing the file to be passed directly to `move_to_spot`.
+
+Each spot is recorded by running the node once per label:
+
+```
+ros2 run project_mapping point_recorder --ros-args -p spot_name:=corner1
+ros2 run project_mapping point_recorder --ros-args -p spot_name:=corner2
+ros2 run project_mapping point_recorder --ros-args -p spot_name:=pedestrian
+```
+
+The three required spots for this project are `corner1`, `corner2`, and `pedestrian`. Each recorded pose is appended to `~/ros2_ws/src/project_path_planning/config/spot-list.yaml`, preserving previously recorded spots.
 
 ### Project localisation
 
-Now we will use the AMCL node to localize the robot within the environment. Our launch file starts the `map.launch.py` launch file from `project_mapping` so that the `map` is published under the topic of the same name. 
+The AMCL node is used to localise the robot within the environment. The localisation launch file includes `map.launch.py` from `project_mapping` so that the map is published under the topic of the same name.
 
-We launch `nav2_amcl` with a configuration yaml file. Additionally, we have written a ROS 2 node named `SpotRecorder`. In this node we create a service that allows us to retrieve and save a pose from the robot as it is in the environment. The coordinates will be saved to a text file with a label so that we can use these landmarks for future navigation. 
+`nav2_amcl` is launched with a configuration yaml file. A ROS 2 node named `SpotRecorder` is also provided. A service is exposed that allows a pose to be retrieved and saved from the robot at the current position in the environment. Coordinates are saved to a text file with a label, enabling these landmarks to be used for future navigation.
 
-To achieve this, an additional package **project_localisation_interfaces** is created. This is because the service message must be defined in an interfaces package. Once we define our service message in `MyServiceMessage.srv` as:
+An additional package, **project_localisation_interfaces**, is required, as service messages must be defined in an interfaces package. The service message is defined in `MyServiceMessage.srv` as:
 
 ```
 # request
@@ -58,17 +74,23 @@ string msg
 geometry_msgs/PoseWithCovarianceStamped pose
 ```
 
-We can return to the `SpotRecorder` which subscribes to the `amcl_pose`, retrieves the estimated position of the robot achieved via the particle filter, and saves it to our text file.
+The `SpotRecorder` subscribes to `amcl_pose`, retrieves the estimated robot position from the particle filter, and saves the result to the text file.
 
-To launch the file use:
+To launch:
 
 ```
 ros2 launch project_localisation localisation.launch.py
 ```
 
-The initial pose must be set manually in RViz. To hardcode it, set initial_pose in the AMCL configuration file.
+The initial pose must be set manually in RViz. To hardcode it, set `initial_pose` in the AMCL configuration file.
 
-We can use `ros2 service list` to ensure the service is ready to use. To check the service type use `ros2 service type /record_spot`. To use the service:
+`ros2 service list` can be used to confirm the service is ready. To check the service type:
+
+```
+ros2 service type /record_spot
+```
+
+To call the service:
 
 ```
 ros2 service call /record_spot "label: corner1"
@@ -76,15 +98,27 @@ ros2 service call /record_spot "label: corner1"
 
 ## Navigation
 
-start the path planning launch file with
+Start the path planning launch file with:
 
 ```
 ros2 launch project_path_planning path_planner.launch.py
 ```
 
-Once the starting pose estimate has been set using RViz2, set a goal pose using RViz2. The robot will now navigate to the goal. 
+Once the starting pose estimate has been set using RViz2, a goal pose can be set via RViz2. The robot will navigate to the goal.
 
-## Troubleshooting 
+### Navigating to a named spot
+
+The `move_to_spot` node acts as a Nav2 action client for the `NavigateToPose` action. Target coordinates are read from `spot-list.yaml`, with the desired destination supplied as a runtime parameter — no code changes are required to switch between spots.
+
+The full Nav2 stack must be running before use. After setting the initial pose estimate in RViz2:
+
+```
+ros2 run project_path_planning move_to_spot --ros-args --params-file ~/ros2_ws/src/project_path_planning/config/spot-list.yaml -p spot_name:=corner1
+```
+
+Substituting `corner1` with `corner2` or `pedestrian` navigates to the other recorded spots. The node terminates automatically upon completion of navigation.
+
+## Troubleshooting
 
 ```
 ros2 param set /robot_state_publisher use_sim_time true
@@ -92,5 +126,5 @@ ros2 param set /robot_state_publisher use_sim_time true
 
 ## TODO
 
-- installation
-- Simulator, world discussion. 
+- Installation instructions
+- Simulator and world setup discussion
