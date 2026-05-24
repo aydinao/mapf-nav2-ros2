@@ -1,19 +1,34 @@
-# Localization
+# Localisation
 
-We will use the AMCL node to localize the robot within the environment.
+The `project_localisation` package provides AMCL-based robot localisation and a service for saving named pose coordinates to a file.
 
-The launch file launches AMCL node and the necessary parameters for configuration.
+## AMCL Localisation
 
-We include the launch for the map server so that the map from the mapping package is loaded.
+`localisation.launch.py` includes `map.launch.py` from `project_mapping`, ensuring the map is published before AMCL starts. The `nav2_amcl` node is then launched with configuration from `amcl_config.yaml`.
 
-We start with global localisation and so we teleoperate the robot around the environment and observe that the particle cloud should get smaller. The grouped particles indicate that the likelihood of the robot being in this area has increased.
+```bash
+ros2 launch project_localisation localisation.launch.py
+```
 
-We use a localtion table with 3 points in the environment with a tag naming it. We will use these coordinates later.
+AMCL uses a particle filter to estimate the robot's position within the map. By default, an initial pose must be provided via the **2D Pose Estimate** tool in RViz2. To skip this manual step, set `set_initial_pose: true` in `amcl_config.yaml` alongside the known starting coordinates.
 
-Instead of manually adding the spots, a service is created that saves these spots into a text file for us. We can simply drive to a spot we want to save the coordinates of and then launch a node named spot_recorder in the file spots_to_file.py. The node contains a service server named /save_spot that takes a string as input. 
+Driving the robot through the environment causes the particle cloud to converge on the correct position, indicated by the cloud becoming more tightly grouped.
 
-We can simply call this service with a string that we want to use as a label, and the coordinate with its label will be written to a file.
+## Spot Recorder Service
 
-We see a message returned to indicate the write was a success.
+The `spots_to_file` node provides a `/record_spot` service that saves the current AMCL pose estimate to a text file with a user-supplied label. The `project_localisation_interfaces` package is required, as the service message is defined there.
 
+Confirm the service is available:
+
+```bash
+ros2 service list
+ros2 service type /record_spot
+```
+
+Record the robot's current position under a label:
+
+```bash
 ros2 service call /record_spot "label: corner1"
+```
+
+A success response confirms the pose has been written to the output file.
