@@ -1,10 +1,60 @@
 # Autonomous TurtleBot3 Navigation
 
-This project implements autonomous TurtleBot3 navigation using ROS 2 Humble and Nav2 in simulation.
+This project implements autonomous TurtleBot3 navigation using ROS 2 Humble and Nav2 in simulation, for both a single robot and multiple robots sharing one world.
+
+## Single-robot navigation
+
+A single TurtleBot3 Burger navigates the standard `turtlebot3_world` using a map, AMCL localisation, and the Nav2 planning stack. The full simulation is started with one command:
+
+```bash
+pixi shell -e humble
+ros2 launch project_path_planning tb3_sim_nav.launch.py   # Gazebo tb3 world + AMCL + Nav2 stack
+ros2 run project_path_planning move_to_spot --ros-args \
+  --params-file src/project_path_planning/config/spot-list.yaml -p spot_name:=goal
+```
+
+- Start/end poses live in `src/project_path_planning/config/spot-list.yaml` (`start` = spawn pose `-2.0, -0.5`; `goal` = free cell `0.55, 0.55`). `move_to_spot` reads `<spot_name>_x/_y/_yaw` parameters.
+- AMCL initial pose is hardcoded in `amcl_config.yaml` to the Gazebo spawn pose (`set_initial_pose: true`), so no RViz "2D Pose Estimate" click is needed for the default bringup.
+- Costmap config (global static+obstacle+inflation, local rolling voxel) is in `path_planning_params.yaml`, adapted from `turtlebot3_navigation2` burger params (`robot_radius: 0.105`).
+
+The building blocks behind this launch file (mapping, localisation, and path planning) are described package by package in the sections below. The robot can also be sent on a full round trip (out to the goal and back to its start) with:
+
+```
+ros2 run multi_robot round_trip --ros-args \
+  --params-file install/multi_robot/share/multi_robot/config/spots_single.yaml -p use_sim_time:=true
+```
+
+## Multi-robot navigation
+
+The `multi_robot` package runs two TurtleBot3 Burgers in the same world, each with its **own complete Nav2 stack** (controller, planner, behaviours, and BT navigator) under its own namespace, `/tb3_0` and `/tb3_1`. There is no central coordination between the robots: each one plans with A* over the shared static map as if it were alone, and the robots only avoid each other because each local costmap observes the other robot through the laser scanner, letting the DWB local planner steer around it.
+
+Key design points:
+
+- **One shared TF tree with prefixed frame names.** All transforms are published on the global `/tf` topic, with each robot's frames prefixed (`tb3_0/odom`, `tb3_0/base_footprint`, ...) under a single shared `map` frame.
+- **Namespaced simulation.** Each robot is spawned with `-robot_namespace`, which namespaces its topics (`/tb3_0/cmd_vel`, `/tb3_0/scan`, ...). The frame names baked into the Gazebo plugins are rewritten per robot before spawning, and one `robot_state_publisher` per robot publishes its description with a matching `frame_prefix`.
+- **Shared map, per-robot localisation.** A single `map_server` serves `/map` to one AMCL instance per robot, each configured with its robot's frames, scan topic, and initial pose.
+- **Per-robot Nav2 parameters.** Each robot's parameter file nests all Nav2 configuration under its namespace, with prefixed frames and absolute scan topics, so the two stacks stay fully independent.
+
+Start the simulation (add `gui:=false` to run headless):
+
+```
+ros2 launch multi_robot multi_robot_sim.launch.py
+```
+
+Then send each robot on its round trip. The default spots make the robots swap positions and return, so they must pass each other in the arena:
+
+```
+ros2 run multi_robot round_trip --ros-args -r __ns:=/tb3_0 \
+  --params-file install/multi_robot/share/multi_robot/config/spots_multi.yaml -p use_sim_time:=true
+ros2 run multi_robot round_trip --ros-args -r __ns:=/tb3_1 \
+  --params-file install/multi_robot/share/multi_robot/config/spots_multi.yaml -p use_sim_time:=true
+```
+
+The `round_trip` node is built on `nav2_simple_commander`. It reads `start_*` and `goal_*` poses from its parameters, navigates to the goal, and returns to the start. It is namespace-agnostic: the same executable drives the single robot (no namespace remap) or either robot in the multi-robot world.
 
 ## Packages
 
-To achieve autonomous navigation, three packages have been created.
+Autonomous navigation is split across dedicated packages: mapping, localisation (plus its service interfaces), path planning, and multi-robot simulation.
 
 ### Project Mapping
 
@@ -128,4 +178,3 @@ ros2 param set /robot_state_publisher use_sim_time true
 
 - Installation instructions
 - Simulator and world setup discussion
-- Add second TurtleBot3 to the simulation

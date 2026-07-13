@@ -1,0 +1,21 @@
+# Round-trip spots for each robot: start = its spawn pose, goal = the other
+# robot's spawn area, so the two robots swap positions and must avoid each
+# other with only their local planners.
+tb3_0:
+  round_trip:
+    ros__parameters:
+      start_x: -2.0
+      start_y: -0.5
+      start_yaw: 0.0
+      goal_x: 2.0
+      goal_y: 0.5
+      goal_yaw: 3.14159
+tb3_1:
+  round_trip:
+    ros__parameters:
+      start_x: 2.0
+      start_y: 0.5
+      start_yaw: 3.14159
+      goal_x: -2.0
+      goal_y: -0.5
+      goal_yaw: 0.0

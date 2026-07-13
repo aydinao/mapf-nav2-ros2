@@ -1,0 +1,10 @@
+# Round-trip spots for the single-robot stack (tb3_sim_nav.launch.py):
+# spawn pose -> free cell between the pillars -> back.
+round_trip:
+  ros__parameters:
+    start_x: -2.0
+    start_y: -0.5
+    start_yaw: 0.0
+    goal_x: 0.55
+    goal_y: 0.55
+    goal_yaw: 0.0
