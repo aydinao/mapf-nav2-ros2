@@ -6,6 +6,20 @@ This project implements autonomous TurtleBot3 navigation using ROS 2 Humble and 
 
 To achieve autonomous navigation, three packages have been created.
 
+## Running the simulation 
+
+```bash
+pixi shell -e humble
+ros2 launch project_path_planning tb3_sim_nav.launch.py   # Gazebo tb3 world + AMCL + Nav2 stack
+ros2 run project_path_planning move_to_spot --ros-args \
+  --params-file src/project_path_planning/config/spot-list.yaml -p spot_name:=goal
+```
+
+- Start/end poses live in `src/project_path_planning/config/spot-list.yaml` (`start` = spawn pose `-2.0, -0.5`; `goal` = free cell `0.55, 0.55`). `move_to_spot` reads `<spot_name>_x/_y/_yaw` parameters.
+- AMCL initial pose is hardcoded in `amcl_config.yaml` to the Gazebo spawn pose (`set_initial_pose: true`), so no RViz "2D Pose Estimate" click is needed for the default bringup.
+- Costmap config (global static+obstacle+inflation, local rolling voxel) is in `path_planning_params.yaml`, adapted from `turtlebot3_navigation2` burger params (`robot_radius: 0.105`).
+
+
 ### Project Mapping
 
 #### Using Cartographer ROS
