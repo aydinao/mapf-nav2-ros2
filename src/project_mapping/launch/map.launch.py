@@ -7,7 +7,7 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 def generate_launch_description():
-    default_map = os.path.join(get_package_share_directory('project_mapping'), 'maps', 'turtlebot3_world.yaml')
+    default_map = os.path.join(get_package_share_directory('nav2_bringup'), 'maps', 'turtlebot3_world.yaml')
     return LaunchDescription([
         DeclareLaunchArgument(
             'map',
