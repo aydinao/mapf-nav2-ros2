@@ -1,0 +1,89 @@
+<?xml version='1.0'?>
+<sdf version='1.7'>
+  <model name='empty_room_1x1'>
+    <static>true</static>
+    <pose>0 0 0 0 0 0</pose>
+
+    <!-- Room is 1.6m x 1.6m interior, walls 0.15m thick, 0.5m tall.
+         Walls are positioned so the interior runs from -0.8 to +0.8
+         in both x and y. Each wall's geometry is raised 0.25m so it
+         sits on the ground plane. -->
+
+    <!-- North wall (+Y side), runs along X axis -->
+    <link name='wall_north'>
+      <pose>0 0.875 0 0 0 0</pose>
+      <collision name='collision'>
+        <pose>0 0 0.25 0 0 0</pose>
+        <geometry><box><size>1.75 0.15 0.5</size></box></geometry>
+      </collision>
+      <visual name='visual'>
+        <pose>0 0 0.25 0 0 0</pose>
+        <geometry><box><size>1.75 0.15 0.5</size></box></geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Grey</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+
+    <!-- South wall (-Y side) -->
+    <link name='wall_south'>
+      <pose>0 -0.875 0 0 0 0</pose>
+      <collision name='collision'>
+        <pose>0 0 0.25 0 0 0</pose>
+        <geometry><box><size>1.75 0.15 0.5</size></box></geometry>
+      </collision>
+      <visual name='visual'>
+        <pose>0 0 0.25 0 0 0</pose>
+        <geometry><box><size>1.75 0.15 0.5</size></box></geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Grey</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+
+    <!-- East wall (+X side), runs along Y axis -->
+    <link name='wall_east'>
+      <pose>0.875 0 0 0 0 0</pose>
+      <collision name='collision'>
+        <pose>0 0 0.25 0 0 0</pose>
+        <geometry><box><size>0.15 1.6 0.5</size></box></geometry>
+      </collision>
+      <visual name='visual'>
+        <pose>0 0 0.25 0 0 0</pose>
+        <geometry><box><size>0.15 1.6 0.5</size></box></geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Grey</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+
+    <!-- West wall (-X side) -->
+    <link name='wall_west'>
+      <pose>-0.875 0 0 0 0 0</pose>
+      <collision name='collision'>
+        <pose>0 0 0.25 0 0 0</pose>
+        <geometry><box><size>0.15 1.6 0.5</size></box></geometry>
+      </collision>
+      <visual name='visual'>
+        <pose>0 0 0.25 0 0 0</pose>
+        <geometry><box><size>0.15 1.6 0.5</size></box></geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Grey</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+
+  </model>
+</sdf>
